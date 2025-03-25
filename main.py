@@ -10,9 +10,11 @@ class SigaaEnroller:
     def __init__(self, coursesCodes: list[(str, str)]):
         load_dotenv()
         self.coursesCodes = coursesCodes
+        options = webdriver.ChromeOptions()
+        options.add_argument("--headless")
         self.driver = webdriver.Chrome()
         self.driver.maximize_window()
-        
+
     def run(self):
         try:
             print("Inicializando a aplicação...")
@@ -35,7 +37,7 @@ class SigaaEnroller:
                 else: break
 
         except Exception as e:
-            print(f"Ocorreu um erro inesperado.")
+            print(f"Erro: {e}")
             
     def login(self):
         self.driver.implicitly_wait(10)
@@ -87,8 +89,9 @@ class SigaaEnroller:
 
     def confirm(self, arrIndex, code):
         self.driver.implicitly_wait(10)
-        confirmTable = self.driver.find_element(By.XPATH, '//*[@id="j_id_jsp_334536566_1"]/table[2]/tbody/tr[3]/td/div/div/table')
-        fields = confirmTable.find_elements(By.TAG_NAME, "tr")
+        confirmTable = self.driver.find_element(By.XPATH, '//*[@id="j_id_jsp_334536566_1"]/table[2]/tbody/tr[3]/td/div/div/table/tbody')
+
+        fields = confirmTable.find_elements(By.XPATH, "./child::*")[2:]
         for field in fields:
             inputValue = ''
             match field.text.replace(":", ""):
@@ -108,7 +111,7 @@ class SigaaEnroller:
 
         try:
             self.driver.implicitly_wait(30)
-            self.driver.find_element(By.CLASS_NAME, 'subFormulario')
+            self.driver.find_element(By.XPATH, '//*[@id="j_id_jsp_334536566_1"]/table[2]/tbody/tr[3]/td/div/div/table')
         except:
             print("Suas informações pessoais estão incorretas!")
             return False
