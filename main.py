@@ -12,7 +12,8 @@ class SigaaEnroller:
     def __init__(self, codesClasses):
         load_dotenv()
         self.codesClasses = codesClasses
-        self.driver = webdriver.Firefox()
+        self.driver = webdriver.Chrome()
+        self.driver.maximize_window()
         
     def run(self):
         try:
@@ -34,10 +35,12 @@ class SigaaEnroller:
         self.driver.implicitly_wait(10)
         
     def navigate_to_enrollment(self):
+        cookiesButton = self.driver.find_element(By.CSS_SELECTOR, "#sigaa-cookie-consent > button")
         menu = self.driver.find_element(By.CSS_SELECTOR, "td.ThemeOfficeMainItem:nth-child(1)")
         subMenu = self.driver.find_element(By.CSS_SELECTOR, "tr.ThemeOfficeMenuItem:nth-child(13) > td:nth-child(2)")
         enrollPageBtn = self.driver.find_element(By.CSS_SELECTOR, "#cmSubMenuID3 > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(3) > td:nth-child(2)")
-
+        
+        cookiesButton.click()
         menu.click()
         subMenu.click()
         enrollPageBtn.click()
@@ -82,9 +85,10 @@ if __name__ == "__main__":
     codesClasses = []
     classesCount = input("Quantas disciplinas deseja se matricular? \n")
     for i in range(int(classesCount)):
-        code = input(f"Digite o código da disciplina {i+1}: \n")
-        name = input("Digite o número da turma dessa disciplina (Sem zeros ao lado): \n")
-        codesClasses.append((code, name))
+        code = input(f"Digite o código da disciplina {i+1}: \n").replace(' ', '')
+        classNumber = input("Digite o número da turma dessa disciplina: \n").lstrip('0').replace(' ', '')
+        if (int(classNumber) < 10): classNumber = '0' + classNumber
+        codesClasses.append((code, f'Turma {classNumber}'))
     
     enroller = SigaaEnroller(codesClasses)
     enroller.run()
