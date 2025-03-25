@@ -15,6 +15,7 @@ class SigaaEnroller:
         
     def run(self):
         try:
+            print("Inicializando a aplicação...")
             self.driver.get("https://sigaa.unb.br/sigaa/paginaInicial.do")
             self.login()
             self.navigate_to_enrollment()
@@ -25,18 +26,16 @@ class SigaaEnroller:
                 classNum = coursesCodes[c][1]
 
                 enrollSuccess = self.enroll(code, classNum)
-                if not (enrollSuccess):
-                    continue
-
-                confirmSuccess = self.confirm(c, code)
-                if not (confirmSuccess):
-                    break
-                
-                if (len(self.coursesCodes)): c = (c+1) % len(self.coursesCodes)
+                if (enrollSuccess):
+                    confirmSuccess = self.confirm(c, code)
+                    if not (confirmSuccess):
+                        break
+                    
+                if (len(self.coursesCodes) != 0): c = (c+1) % len(self.coursesCodes)
                 else: break
 
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Ocorreu um erro inesperado.")
             
     def login(self):
         self.driver.implicitly_wait(10)
@@ -62,8 +61,10 @@ class SigaaEnroller:
         
         
     def enroll(self, code, classNumber):
+        print(f"Procurando a disciplina {code}...")
         self.driver.implicitly_wait(10)
         codeInput = self.driver.find_element(By.ID, "form:txtCodigo")
+        codeInput.clear()
         codeInput.send_keys(code)
         codeInput.send_keys(Keys.RETURN)
 
@@ -113,7 +114,7 @@ class SigaaEnroller:
             return False
         finally:
             self.coursesCodes.pop(arrIndex)
-            print(f"Cadastrado na disciplina {code}")
+            print(f"Cadastrado na disciplina {code}.")
 
             returnBtn = self.driver.find_element(By.XPATH, '//*[@id="j_id_jsp_334536566_1:btnRealizarNovaMatricula"]')
             returnBtn.click()
